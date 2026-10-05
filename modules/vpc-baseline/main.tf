@@ -6,7 +6,7 @@ data "aws_caller_identity" "current" {}
 
 locals {
   azs            = slice(data.aws_availability_zones.available.names, 0, var.az_count)
-  private_offset = pow(2, var.subnet_newbits) / 2
+  private_offset = floor(pow(2, var.subnet_newbits) / 2)
   nat_count      = { none = 0, single = 1, per_az = var.az_count }[var.nat_gateway_mode]
 }
 

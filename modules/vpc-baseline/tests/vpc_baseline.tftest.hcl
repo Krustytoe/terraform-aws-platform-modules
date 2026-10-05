@@ -81,6 +81,19 @@ run "isolated_no_nat_no_flow_logs" {
   }
 }
 
+run "encrypted_flow_logs" {
+  command = plan
+
+  variables {
+    flow_log_kms_key_arn = "arn:aws-us-gov:kms:us-gov-west-1:111111111111:key/00000000-0000-0000-0000-000000000000"
+  }
+
+  assert {
+    condition     = aws_cloudwatch_log_group.flow_logs[0].kms_key_id == var.flow_log_kms_key_arn
+    error_message = "Flow log group must use the supplied KMS key when provided."
+  }
+}
+
 run "rejects_bad_nat_mode" {
   command = plan
 

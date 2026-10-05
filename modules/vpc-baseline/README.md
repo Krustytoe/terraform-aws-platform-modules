@@ -1,5 +1,9 @@
 # vpc-baseline
 
+## Requirements
+
+Terraform >= 1.7, AWS provider >= 5.0. Run `terraform test` for offline validation (no AWS credentials required).
+
 Multi-AZ VPC with public and private tiers, configurable NAT, and VPC flow logs to CloudWatch.
 
 ## Layout

@@ -59,6 +59,28 @@ run "subscriptions" {
   }
 }
 
+run "topic_policy_denies_insecure_transport" {
+  command = plan
+
+  assert {
+    condition     = can(regex("DenyInsecureTransport", aws_sns_topic_policy.this.policy))
+    error_message = "Topic policy must include DenyInsecureTransport statement."
+  }
+}
+
+run "publisher_services_appear_in_topic_policy" {
+  command = plan
+
+  variables {
+    publisher_services = ["events.amazonaws.com"]
+  }
+
+  assert {
+    condition     = can(regex("events\\.amazonaws\\.com", aws_sns_topic_policy.this.policy))
+    error_message = "Custom publisher_services must appear in the topic policy."
+  }
+}
+
 run "rejects_plain_http_webhook" {
   command = plan
 

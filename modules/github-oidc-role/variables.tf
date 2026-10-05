@@ -58,6 +58,11 @@ variable "max_session_duration" {
   description = "Max session length in seconds (3600-43200)."
   type        = number
   default     = 3600
+
+  validation {
+    condition     = var.max_session_duration >= 3600 && var.max_session_duration <= 43200
+    error_message = "max_session_duration must be between 3600 and 43200 seconds."
+  }
 }
 
 variable "tags" {

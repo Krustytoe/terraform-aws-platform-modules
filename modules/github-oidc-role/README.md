@@ -1,5 +1,9 @@
 # github-oidc-role
 
+## Requirements
+
+Terraform >= 1.7, AWS provider >= 5.0. Run `terraform test` for offline validation (no AWS credentials required).
+
 IAM role that GitHub Actions assumes through OIDC, so no long-lived AWS keys live in repo secrets.
 
 ## Why the guardrails
@@ -43,7 +47,7 @@ jobs:
 | `managed_policy_arns` | list(string) | `[]` | Managed policies to attach |
 | `inline_policy_json` | string | `null` | Least-privilege inline policy |
 | `permissions_boundary_arn` | string | `null` | Permissions boundary |
-| `max_session_duration` | number | `3600` | Seconds |
+| `max_session_duration` | number | `3600` | Seconds (3600–43200) |
 | `tags` | map(string) | `{}` | Extra tags |
 
 ## Outputs

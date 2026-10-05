@@ -1,5 +1,9 @@
 # sns-alerting
 
+## Requirements
+
+Terraform >= 1.7, AWS provider >= 5.0. Run `terraform test` for offline validation (no AWS credentials required).
+
 KMS-encrypted SNS topic that CloudWatch alarms and EventBridge rules can publish to, with email and HTTPS (e.g. PagerDuty) subscriptions.
 
 ## Gotchas this module handles

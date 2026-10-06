@@ -43,6 +43,9 @@ jobs:
         if: hashFiles(format('{0}/tests/*.tftest.hcl', matrix.dir)) != ''
         run: terraform test
       - name: tflint
+        env:
+          # Authenticated plugin download; anonymous GitHub API calls get rate-limited on shared runners.
+          GITHUB_TOKEN: ${{ github.token }}
         run: |
           tflint --init --config "$GITHUB_WORKSPACE/.tflint.hcl"
           tflint --config "$GITHUB_WORKSPACE/.tflint.hcl"

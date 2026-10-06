@@ -12,6 +12,19 @@ mock_provider "aws" {
       account_id = "111111111111"
     }
   }
+
+  # Valid ARNs so apply-mode runs pass provider-side ARN validation.
+  mock_resource "aws_sns_topic" {
+    defaults = {
+      arn = "arn:aws-us-gov:sns:us-gov-west-1:111111111111:platform-test-critical"
+    }
+  }
+
+  mock_resource "aws_kms_key" {
+    defaults = {
+      arn = "arn:aws-us-gov:kms:us-gov-west-1:111111111111:key/11111111-1111-1111-1111-111111111111"
+    }
+  }
 }
 
 variables {
@@ -59,8 +72,10 @@ run "subscriptions" {
   }
 }
 
+# The policy embeds the topic ARN, which is unknown at plan time; apply against the
+# mocked provider so the ARN (and therefore the policy) is known. Still fully offline.
 run "topic_policy_denies_insecure_transport" {
-  command = plan
+  command = apply
 
   assert {
     condition     = can(regex("DenyInsecureTransport", aws_sns_topic_policy.this.policy))
@@ -68,8 +83,10 @@ run "topic_policy_denies_insecure_transport" {
   }
 }
 
+# The policy embeds the topic ARN, which is unknown at plan time; apply against the
+# mocked provider so the ARN (and therefore the policy) is known. Still fully offline.
 run "publisher_services_appear_in_topic_policy" {
-  command = plan
+  command = apply
 
   variables {
     publisher_services = ["events.amazonaws.com"]

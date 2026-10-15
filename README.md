@@ -8,6 +8,48 @@ Small, opinionated Terraform modules for standing up a secure AWS platform basel
 | [`github-oidc-role`](modules/github-oidc-role) | IAM role GitHub Actions assumes via OIDC (no long-lived keys) | Rejects wildcard `sub` claims like `repo:*` / `repo:org/*`; optional permissions boundary |
 | [`sns-alerting`](modules/sns-alerting) | KMS-encrypted SNS topic for CloudWatch / EventBridge alerts | Creates a rotating CMK that CloudWatch can actually publish through; denies non-TLS publish; webhook URLs treated as secrets |
 
+## Architecture
+
+```mermaid
+flowchart LR
+  job["GitHub Actions job<br/>repo:org/repo:environment:prod"]
+
+  subgraph acct["AWS account: aws or aws-us-gov partition"]
+    oidc["IAM OIDC provider<br/>token.actions.githubusercontent.com"]
+    role["github-oidc-role<br/>IAM role + optional permissions boundary"]
+
+    subgraph vpc["vpc-baseline: repeated per AZ"]
+      igw["Internet gateway"]
+      pub["Public subnet<br/>no auto-assigned public IPs"]
+      nat["NAT gateway<br/>none / single / per_az"]
+      priv["Private subnet<br/>route table per AZ"]
+      dsg["Default SG<br/>all rules stripped"]
+    end
+
+    fl["VPC flow logs: ALL traffic<br/>CloudWatch Logs, 365d"]
+    cw["CloudWatch alarms<br/>EventBridge rules"]
+
+    subgraph alerting["sns-alerting: one topic per severity"]
+      cmk["KMS CMK<br/>rotation on"]
+      sns["SNS topic<br/>TLS-only publish"]
+    end
+  end
+
+  email["Email / ticket<br/>warning"]
+  pager["HTTPS webhook, e.g. PagerDuty<br/>critical"]
+
+  job -- "OIDC token, aud sts.amazonaws.com" --> oidc
+  oidc -- "sub claim must match, no wildcards" --> role
+  pub --> igw
+  priv -- "0.0.0.0/0" --> nat
+  nat --> igw
+  vpc -. "flow log role, aws:SourceAccount" .-> fl
+  cw -- "sns:Publish, aws:SourceAccount" --> sns
+  cmk -. "encrypts" .-> sns
+  sns --> email
+  sns --> pager
+```
+
 ## Usage
 
 ```hcl

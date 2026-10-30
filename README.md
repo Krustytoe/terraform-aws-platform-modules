@@ -1,5 +1,7 @@
 # terraform-aws-platform-modules
 
+[![CI](https://github.com/Krustytoe/terraform-aws-platform-modules/actions/workflows/terraform.yml/badge.svg)](https://github.com/Krustytoe/terraform-aws-platform-modules/actions/workflows/terraform.yml) [![Release](https://img.shields.io/github/v/release/Krustytoe/terraform-aws-platform-modules)](https://github.com/Krustytoe/terraform-aws-platform-modules/releases/latest) [![License](https://img.shields.io/github/license/Krustytoe/terraform-aws-platform-modules)](LICENSE)
+
 Small, opinionated Terraform modules for standing up a secure AWS platform baseline. Built to work **unchanged in both AWS commercial and GovCloud** (partition-aware ARNs, no hard-coded `arn:aws:`), with defaults that line up with FedRAMP / NIST 800-53 expectations.
 
 | Module | What it does | Key defaults |
@@ -54,7 +56,7 @@ flowchart LR
 
 ```hcl
 module "vpc" {
-  source = "git::https://github.com/Krustytoe/terraform-aws-platform-modules.git//modules/vpc-baseline?ref=v0.1.0"
+  source = "git::https://github.com/Krustytoe/terraform-aws-platform-modules.git//modules/vpc-baseline?ref=v0.1.1" # x-release-please-version
 
   name             = "platform-prod"
   cidr_block       = "10.20.0.0/16"
@@ -63,14 +65,14 @@ module "vpc" {
 }
 
 module "deploy_role" {
-  source = "git::https://github.com/Krustytoe/terraform-aws-platform-modules.git//modules/github-oidc-role?ref=v0.1.0"
+  source = "git::https://github.com/Krustytoe/terraform-aws-platform-modules.git//modules/github-oidc-role?ref=v0.1.1" # x-release-please-version
 
   role_name      = "gha-platform-prod"
   subject_claims = ["repo:my-org/platform-infra:environment:prod"]
 }
 
 module "alerts_critical" {
-  source = "git::https://github.com/Krustytoe/terraform-aws-platform-modules.git//modules/sns-alerting?ref=v0.1.0"
+  source = "git::https://github.com/Krustytoe/terraform-aws-platform-modules.git//modules/sns-alerting?ref=v0.1.1" # x-release-please-version
 
   name            = "platform-prod-critical"
   https_endpoints = [var.pagerduty_cloudwatch_url] # sensitive: pass via TF_VAR_, never commit

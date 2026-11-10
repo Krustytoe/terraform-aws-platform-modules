@@ -107,6 +107,10 @@ CI ([`.github/workflows/terraform.yml`](.github/workflows/terraform.yml)) runs `
 | Terraform | >= 1.7 (for `mock_provider` in tests) |
 | hashicorp/aws | >= 5.0 |
 
+## Used by
+
+- [aws-genai-platform](https://github.com/Krustytoe/aws-genai-platform): guardrailed RAG platform on Amazon Bedrock, designed to run on a `vpc-baseline` VPC (its Bedrock interface endpoints go in the private subnets) and be deployed through a `github-oidc-role`.
+
 ## License
 
 MIT

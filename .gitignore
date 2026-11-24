@@ -12,3 +12,5 @@ override.tf
 override.tf.json
 *_override.tf
 *_override.tf.json
+# Ruler provenance markers (local only)
+*.ruler-generated

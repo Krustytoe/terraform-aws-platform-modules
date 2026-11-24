@@ -1,0 +1,75 @@
+
+
+<!-- Source: .ruler/AGENTS.md -->
+
+# terraform-aws-platform-modules
+
+Small, opinionated Terraform modules for a secure AWS platform baseline. Every module must work unchanged in both AWS commercial (`aws`) and GovCloud (`aws-us-gov`) partitions, with secure defaults aligned to FedRAMP / NIST 800-53 expectations.
+
+## Layout
+
+- `modules/<name>/` — one module per directory: `vpc-baseline`, `github-oidc-role`, `sns-alerting`.
+  - `main.tf`, `variables.tf`, `outputs.tf`, `versions.tf`, `README.md`
+  - `tests/<name>.tftest.hcl` — offline unit tests against a mocked `aws` provider
+- `examples/complete/main.tf` — all modules wired together; validated in CI.
+- `.tflint.hcl` — repo-root tflint config (terraform `recommended` preset + `tflint-ruleset-aws`).
+- `.github/workflows/` — `terraform.yml` (fmt/validate/test/tflint), `security.yml` (Trivy config scan), `release-please.yml`, `dependabot-auto-merge.yml`, `ruler.yml`.
+- `release-please-config.json`, `.release-please-manifest.json`, `CHANGELOG.md` — managed by release-please; do not hand-edit versions or the changelog.
+- `.ruler/` — source of truth for agent instructions.
+
+## Commands
+
+Requires Terraform >= 1.7 and tflint (CI pins v0.64.0). No cloud credentials are needed; every test uses a mocked provider.
+
+```bash
+# from repo root
+REPO_ROOT="$PWD"
+terraform fmt -check -recursive -diff
+
+# for each module you touched, and examples/complete if a module interface changed
+cd modules/<module>
+terraform init -backend=false -input=false
+terraform validate
+terraform test          # only where tests/*.tftest.hcl exists (all modules today)
+tflint --init --config "$REPO_ROOT/.tflint.hcl"
+tflint --config "$REPO_ROOT/.tflint.hcl"
+cd -
+```
+
+- CI runs the validate/test/tflint steps per directory for `modules/vpc-baseline`, `modules/github-oidc-role`, `modules/sns-alerting`, and `examples/complete`. Add new modules to that matrix in `.github/workflows/terraform.yml`.
+- tflint must use the repo-root `.tflint.hcl` (pass `--config` with an absolute path).
+- `security.yml` runs a Trivy config scan (`severity: HIGH,CRITICAL`) via a reusable workflow; there is no local wrapper in this repo.
+- `.terraform.lock.hcl` is gitignored; do not commit lock files.
+
+## Module conventions
+
+- Keep the file split: `main.tf` / `variables.tf` / `outputs.tf` / `versions.tf` / `README.md` / `tests/`.
+- `versions.tf`: `required_version = ">= 1.7"` and a bounded provider constraint (`hashicorp/aws` `">= 5.0, < 7.0"`). Floor the version you need; cap the next major.
+- Partition-aware: never hard-code `arn:aws:`. Build ARNs from `data.aws_partition` or take them from resource attributes.
+- Pin service-principal trust and resource policies with `aws:SourceAccount` (confused-deputy guard).
+- Secure by default: any input that weakens a control (logging off, public access on, encryption off) defaults to the secure value and says so in its description.
+- Every variable and output has a `description` and every variable a `type`. Use `validation` blocks to reject bad input at plan time (e.g. wildcard OIDC `sub` claims, non-`https://` webhooks).
+- Mark secret-bearing inputs `sensitive = true` and key resources from them by index (`count`), so values never appear in resource addresses or plan output.
+- Tagging: every module takes `variable "tags"` (`map(string)`, default `{}`, "Tags merged onto every resource.") and applies it to every taggable resource, merging `Name` where the module sets one.
+- Alert severity: one SNS topic per severity — `warning` = awareness (email/ticket), `critical` = service impact, page someone.
+- Every module change ships with a test in `tests/*.tftest.hcl`, including the negative case (`expect_failures`) for each `validation` block. Prefer `command = plan`; use `command = apply` only against the mock when a value is unknown at plan time. Use obviously fake IDs (e.g. `111111111111`) in mocks.
+- When an interface changes, update the module `README.md` inputs/outputs and the root `README.md` module table.
+
+## Guardrails
+
+- Never run `terraform apply`, `terraform destroy`, or anything that touches a real AWS account without explicit human approval. Prefer `terraform test` against the mock, `validate`, and plan/diff output.
+- No secrets in code, examples, fixtures, logs, or output: no tokens, keys, webhook URLs, account IDs, or internal hostnames. Use obvious placeholders; pass sensitive values via `TF_VAR_*`, never commit `*.tfvars`.
+- Pin third-party GitHub Actions to a full commit SHA with the version as a trailing comment (`uses: org/action@<sha> # v1.2.3`).
+- PR titles must be Conventional Commits (`feat:`, `fix:`, `docs:`, `ci:`, `chore:`); mark breaking interface changes with `!`. PRs are squash-merged and the title drives release-please.
+- Keep changes focused: one concern per PR.
+- Report security issues privately per `SECURITY.md`, never in a public issue.
+- Generated agent files (`AGENTS.md`, `CLAUDE.md`, `.gemini/settings.json` at repo root) are produced by Ruler from `.ruler/`. Edit `.ruler/AGENTS.md`, then run `npx @intellectronica/ruler@0.3.46 apply`. Never hand-edit the generated files; the `ruler` CI workflow fails on drift.
+
+## Definition of done
+
+- `terraform fmt -check -recursive -diff` passes.
+- `terraform init -backend=false`, `terraform validate`, `terraform test`, and tflint (repo-root config) pass in every touched module, and in `examples/complete` if an interface changed.
+- New or changed behavior has a test, including negative cases for validations.
+- Module and root READMEs reflect any input/output changes.
+- No secrets, real IDs, or hard-coded `arn:aws:` introduced.
+- If `.ruler/` changed, Ruler was re-run and the generated files are included.

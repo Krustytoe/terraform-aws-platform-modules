@@ -2,6 +2,8 @@
 
 [![CI](https://github.com/Krustytoe/terraform-aws-platform-modules/actions/workflows/terraform.yml/badge.svg)](https://github.com/Krustytoe/terraform-aws-platform-modules/actions/workflows/terraform.yml) [![Release](https://img.shields.io/github/v/release/Krustytoe/terraform-aws-platform-modules)](https://github.com/Krustytoe/terraform-aws-platform-modules/releases/latest) [![License](https://img.shields.io/github/license/Krustytoe/terraform-aws-platform-modules)](LICENSE)
 
+> **When to use this repo:** Use this repo when you need foundational AWS building blocks—networks, passwordless GitHub deployment permissions, and encrypted alert topics—that work unchanged in both commercial AWS and GovCloud.
+
 Small, opinionated Terraform modules for standing up a secure AWS platform baseline. Built to work **unchanged in both AWS commercial and GovCloud** (partition-aware ARNs, no hard-coded `arn:aws:`), with defaults that line up with FedRAMP / NIST 800-53 expectations.
 
 | Module | What it does | Key defaults |

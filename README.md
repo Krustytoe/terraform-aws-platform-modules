@@ -1,6 +1,6 @@
 # terraform-aws-platform-modules
 
-[![CI](https://github.com/Krustytoe/terraform-aws-platform-modules/actions/workflows/terraform.yml/badge.svg)](https://github.com/Krustytoe/terraform-aws-platform-modules/actions/workflows/terraform.yml) [![Release](https://img.shields.io/github/v/release/Krustytoe/terraform-aws-platform-modules)](https://github.com/Krustytoe/terraform-aws-platform-modules/releases/latest) [![License](https://img.shields.io/github/license/Krustytoe/terraform-aws-platform-modules)](LICENSE)
+[![CI](https://github.com/Krustytoe/terraform-aws-platform-modules/actions/workflows/terraform.yml/badge.svg)](https://github.com/Krustytoe/terraform-aws-platform-modules/actions/workflows/terraform.yml) [![Release](https://img.shields.io/github/v/release/Krustytoe/terraform-aws-platform-modules)](https://github.com/Krustytoe/terraform-aws-platform-modules/releases/latest) [![License](https://img.shields.io/github/license/Krustytoe/terraform-aws-platform-modules)](LICENSE) [![OpenSSF Scorecard](https://api.scorecard.dev/projects/github.com/Krustytoe/terraform-aws-platform-modules/badge)](https://scorecard.dev/viewer/?uri=github.com/Krustytoe/terraform-aws-platform-modules)
 
 > **When to use this repo:** Use this repo when you need foundational AWS building blocks—networks, passwordless GitHub deployment permissions, and encrypted alert topics—that work unchanged in both commercial AWS and GovCloud.
 

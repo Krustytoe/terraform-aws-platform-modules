@@ -14,7 +14,7 @@ Small, opinionated Terraform modules for a secure AWS platform baseline. Every m
   - `tests/<name>.tftest.hcl` — offline unit tests against a mocked `aws` provider
 - `examples/complete/main.tf` — all modules wired together; validated in CI.
 - `.tflint.hcl` — repo-root tflint config (terraform `recommended` preset + `tflint-ruleset-aws`).
-- `.github/workflows/` — `terraform.yml` (fmt/validate/test/tflint), `security.yml` (Trivy config scan), `release-please.yml`, `dependabot-auto-merge.yml`, `ruler.yml`.
+- `.github/workflows/` — `terraform.yml` (fmt/validate/test/tflint), `security.yml` (Trivy config scan), `release-please.yml`, `scorecard.yml` (OpenSSF Scorecard), `dependabot-auto-merge.yml`, `ruler.yml`.
 - `release-please-config.json`, `.release-please-manifest.json`, `CHANGELOG.md` — managed by release-please; do not hand-edit versions or the changelog.
 - `.ruler/` — source of truth for agent instructions.
 
